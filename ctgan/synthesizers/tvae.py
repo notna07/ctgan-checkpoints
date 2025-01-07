@@ -138,7 +138,7 @@ class TVAE(BaseSynthesizer):
         self._device = torch.device(device)
 
     @random_state
-    def fit(self, train_data, discrete_columns=()):
+    def fit(self, train_data, discrete_columns=(), checkpoints=10, idx=0):
         """Fit the TVAE Synthesizer models to the training data.
 
         Args:
@@ -195,6 +195,9 @@ class TVAE(BaseSynthesizer):
 
                 batch.append(id_)
                 loss_values.append(loss.detach().cpu().item())
+
+            if (i+1) % checkpoints == 0:
+                torch.save(self.decoder.state_dict(), f'saved_models/tvae_decoder_epoch_{i+1}_{idx}.pt')
 
             epoch_loss_df = pd.DataFrame({
                 'Epoch': [i] * len(batch),

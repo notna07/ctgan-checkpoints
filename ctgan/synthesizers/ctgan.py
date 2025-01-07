@@ -290,7 +290,7 @@ class CTGAN(BaseSynthesizer):
             raise ValueError(f'Invalid columns found: {invalid_columns}')
 
     @random_state
-    def fit(self, train_data, discrete_columns=(), epochs=None):
+    def fit(self, train_data, discrete_columns=(), epochs=None, checkpoints=10, idx=0):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -440,6 +440,9 @@ class CTGAN(BaseSynthesizer):
 
             generator_loss = loss_g.detach().cpu().item()
             discriminator_loss = loss_d.detach().cpu().item()
+            
+            if (i+1) % checkpoints == 0:
+                torch.save(self._generator.state_dict(), f'saved_models/ctgan_generator_epoch_{i+1}_{idx}.pt')
 
             epoch_loss_df = pd.DataFrame({
                 'Epoch': [i],
